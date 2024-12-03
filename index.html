@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Truth or Dare</title>
+    <link href="(link unavailable)" rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Pacifico", cursive;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-image: url("(link unavailable)");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #main {
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      #game {
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+
+      button {
+        width: 80%;
+        max-width: 300px;
+        padding: 15px;
+        font-size: 1.2em;
+        margin: 10px;
+        border: none;
+        border-radius: 10px;
+        background: #ff6b6b;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, background-color 0.3s;
+      }
+      input{
+        width: 80%;
+        max-width: 300px;
+        padding: 5px;
+        font-size: 1.2em;
+        margin: 10px;
+        border: none;
+        border-radius: 10px;
+        background: #ff6b6b;
+        color: white;
+        
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s, background-color 0.3s;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+        background-color: #ff4e50;
+      }
+
+      #question {
+        margin: 30px auto;
+        padding: 20px;
+        font-size: 1.5em;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.8em;
+        }
+        button {
+          font-size: 1em;
+        }
+        #question {
+          font-size: 1.2em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Page -->
+    <div id="main">
+      <h1>Truth or Dare</h1>
+      <p>Choose your level:</p>
+      <button onclick="startGame('easy')">Easy</button>
+      <button onclick="startGame('funny')">Funny</button>
+      <button onclick="startGame('adult')">Adult</button>
+      <h3>Custom Questions</h3>
+      <input
+        type="text"
+        id="customQuestion"
+        placeholder="Enter your question"
+      />
+      <button
+        onclick="addCustomQuestion('truth', document.getElementById('customQuestion').value)"
+      >
+        Add Truth
+      </button>
+      <button
+        onclick="addCustomQuestion('dare', document.getElementById('customQuestion').value)"
+      >
+        Add Dare
+      </button>
+      <h3>Multiplayer Mode</h3>
+      
+      <input
+        type="text"
+        id="playerNames"
+        placeholder="Enter player names, comma-separated"
+      />
+      <button
+        onclick="startMultiplayer(document.getElementById('playerNames').value)"
+      >
+        Start Multiplayer
+      </button>
+    </div>
+    <!-- Player Avatar Selection -->
+    <div id="avatar-selection" class="hidden">
+      <h2>Select Your Avatar</h2>
+      <img
+        src="./pictures/WhatsApp Image 2024-12-03 at 3.33.58 AM.jpeg"
+        class="avatar"
+        onclick="selectAvatar(this)"
+      />
+      <img
+        src="./pictures/WhatsApp Image 2024-12-03 at 3.34.18 AM.jpeg"
+        class="avatar"
+        onclick="selectAvatar(this)"
+      />
+      <img
+        src="./pictures/WhatsApp Image 2024-12-03 at 3.34.32 AM.jpeg"
+        class="avatar"
+        onclick="selectAvatar(this)"
+      />
+      <img
+        src="./pictures/WhatsApp Image 2024-12-03 at 3.34.51 AM.jpeg"
+        class="avatar"
+        onclick="selectAvatar(this)"
+      />
+      <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Game Page -->
+    <div id="game" class="hidden">
+      <h1 id="playerTurn"></h1>
+      <img id="playerAvatar" class="avatar" />
+      <h1 id="question">Truth or Dare?</h1>
+      <p id="score">Number: 0</p>
+      <button onclick="getQuestion('truth')">Truth</button>
+      <button onclick="getQuestion('dare')">Dare</button>
+      <button onclick="goBack()">Back</button>
+    </div>
+
+    <script>
+      // Questions
+      const questions = {
+        easy: {
+            truth: [
+            "What's the first thing you noticed about your partner?",
+            "What's the most romantic thing your partner has ever done for you?",
+            "What's your favorite memory with your partner?",
+            "What's one thing you love about your partner's personality?",
+            "What's the biggest compromise you've made in your relationship?",
+            "What's the most adventurous thing you've done together?",
+            "What's one thing you wish you could tell your partner but haven't?",
+            "What's the most thoughtful gift your partner has ever given you?",
+            "What's your favorite way to spend quality time with your partner?",
+            "What's the biggest challenge you've faced in your relationship and how did you overcome it?",
+            "What's one thing you love about your partner's appearance?",
+            "What's the most memorable date you've ever been on with your partner?",
+            "What's the biggest lesson you've learned from your partner?",
+            "What's one thing you wish you could do more often with your partner?",
+            "What's the most supportive thing your partner has ever done for you?",
+            "What's your favorite way to show affection to your partner?",
+            "What's the most meaningful thing your partner has ever said to you?",
+            "What's one thing you're looking forward to doing with your partner in the future?",
+          ],
+          dare: [
+            "Give your partner a 30-second kiss.",
+            "Hold hands with your partner for the next 10 minutes.",
+            "Write a love note to your partner and read it out loud.",
+            "Give your partner a 5-minute massage.",
+            "Sing a love song to your partner.",
+            "Do a funny dance with your partner.",
+            "Make out with your partner for 10 seconds.",
+            "Give your partner a compliment and explain why you chose it.",
+            "Hold your partner's hand and walk around the room together.",
+            "Tell your partner something you love about them.",
+            "Give your partner a gentle kiss on the cheek.",
+            "Do a silly task together, like touching your nose to your partner's nose.",
+            "Make a funny face at your partner and hold it for 10 seconds.",
+            "Give your partner a hug and hold it for 10 seconds.",
+            "Tell your partner a joke and try to make them laugh.",
+            "Do a funny accent together.",
+            "Make out with your partner for 5 seconds while making funny faces.",
+            "Give your partner a compliment and then do a funny dance to celebrate.",
+          ],
+        },
+        funny: {
+          truth: [
+            "What's the most embarrassing song you have on your phone?",
+            "What's the worst haircut you've ever had?",
+            "What's the most ridiculous thing you've ever lied about?",
+            "What's the funniest thing that's ever happened to you?",
+            "What's the most embarrassing thing you've ever done in public?",
+            "What's the worst joke you know?",
+            "What's the most ridiculous thing you're afraid of?",
+            "What's the funniest thing your pet has ever done?",
+            "What's the most embarrassing thing you've ever worn?",
+            "What's the worst cooking disaster you've ever had?",
+            "What's the funniest thing you've ever seen on the internet?",
+            "What's the most ridiculous thing you've ever argued about?",
+            "What's the funniest thing that's ever happened to you at work?",
+            "What's the most embarrassing thing you've ever done at school?",
+            "What's the worst fashion trend you've ever followed?",
+            "What's the funniest thing you've ever seen in a movie?",
+            "What's the most ridiculous thing you've ever done on a dare?",
+            "What's the funniest thing you've ever heard someone say?",
+            "What's the most embarrassing thing you've ever done in front of a crowd?",
+            "What's the worst gift you've ever received?",
+            "What's the funniest thing you've ever seen on TV?",
+            "What's the most ridiculous thing you've ever eaten?",
+            "What's the funniest thing you've ever done with your friends?",
+            "What's the most embarrassing thing you've ever done at a party?",
+            "What's the worst game you've ever played?",
+            "What's the funniest thing you've ever seen in a video game?",
+            "What's the most ridiculous thing you've ever done on a whim?",
+            "What's the funniest thing you've ever heard in a song?",
+            "What's the most embarrassing thing you've ever done in front of your family?",
+            "What's the worst joke you've ever heard?",
+            "What's the funniest thing you've ever seen in a meme?",
+            "What's the most ridiculous thing you've ever done to impress someone?",
+            "What's the funniest thing you've ever done with your siblings?",
+            "What's the most embarrassing thing you've ever done at a restaurant?",
+            "What's the worst food you've ever eaten?",
+            "What's the funniest thing you've ever seen in a cartoon?",
+            "What's the most ridiculous thing you've ever done on a road trip?",
+            "What's the funniest thing you've ever heard in a podcast?",
+            "What's the most embarrassing thing you've ever done at a concert?",
+            "What's the worst gift you've ever given someone?",
+          ],
+          dare: [
+            "Sing a silly song out loud.",
+            "Do a funny dance in front of everyone.",
+            "Tell a joke to the group.",
+            "Do 10 jumping jacks while making funny faces.",
+            "Make animal noises for 30 seconds.",
+            "Hop on one foot while singing a silly song.",
+            "Do a funny impression of someone in the group.",
+            "Write a short poem on the spot and read it out loud.",
+            "Draw a picture of the group and show it off.",
+            "Play a game of 'rock, paper, scissors' with the group.",
+            "Do a funny accent for 30 seconds.",
+            "Tell a story using only gestures.",
+            "Do 5 push-ups while making funny faces.",
+            "Sing a love song to an inanimate object.",
+            "Do a funny walk for 30 seconds.",
+            "Make a funny sound effect and repeat it 5 times.",
+            "Do a funny dance move and repeat it 5 times.",
+            "Play a game of 'Simon says' with the group.",
+            "Do a silly task with your non-dominant hand.",
+            "Have a staring contest with someone in the group for 30 seconds.",
+            "Do a funny impression of an animal.",
+            "Write a short story on the spot and read it out loud.",
+            "Draw a picture of your favorite food and show it off.",
+            "Play a game of 'Would you rather...' with the group.",
+            "Do a funny accent for 1 minute.",
+            "Tell a joke to the group and then do a funny dance.",
+            "Do 10 jumping jacks while making funny faces and animal noises.",
+            "Sing a silly song out loud while doing a funny dance.",
+            "Do a funny impression of someone in the group and then have them do an impression of you.",
+            "Write a short poem on the spot and then have someone else read it out loud.",
+            "Draw a picture of the group and then have someone else draw a picture of you.",
+            "Play a game of 'Charades' with the group using funny gestures.",
+            "Sing a love song to an inanimate object while doing a funny dance.",
+            "Do a funny impression of a famous person and then have someone else do an impression of you.",
+            "Write a short story on the spot and then have someone else read it out loud while doing funny voices.",
+            "Draw a picture of your favorite animal and then have someone else draw a picture of you.",
+            "Play a game of 'Pictionary' with the group using funny gestures.",
+            "Do a funny dance for 1 minute while making animal noises and wearing a funny hat.",
+            "Sing a silly song out loud while doing a funny dance and playing a funny instrument.",
+          ],
+        },
+        adult: {
+          truth: [
+            "What's the craziest thing you've ever done on a dare?",
+            "What's the biggest secret you've ever kept from your partner?",
+            "What's the most embarrassing thing that's ever happened to you?",
+            "What's the wildest thing you've ever done on a night out?",
+            "What's the biggest lie you've ever told?",
+            "What's the most spontaneous thing you've ever done?",
+            "What's the craziest thing you've ever done in a relationship?",
+            "What's the biggest risk you've ever taken?",
+            "What's the most embarrassing thing you've ever done in front of a crowd?",
+            "What's the wildest thing you've ever done on a vacation?",
+            "What's the biggest secret you've ever kept from your friends?",
+            "What's the most spontaneous thing you've ever done with a partner?",
+            "What's the craziest thing you've ever done on a whim?",
+            "What's the biggest lie you've ever told to get out of something?",
+            "What's the most embarrassing thing you've ever done at work?",
+            "What's the wildest thing you've ever done at a party?",
+            "What's the biggest secret you've ever kept from your family?",
+            "What's the most spontaneous thing you've ever done with friends?",
+            "What's the craziest thing you've ever done on a date?",
+            "What's the biggest risk you've ever taken in a relationship?",
+            "What's the most embarrassing thing you've ever done in front of a partner?",
+            "What's the wildest thing you've ever done on a weekend getaway?",
+            "What's the biggest secret you've ever kept from a partner?",
+            "What's the most spontaneous thing you've ever done with a stranger?",
+            "What's the craziest thing you've ever done at a concert?",
+            "What's the biggest lie you've ever told to a partner?",
+            "What's the most embarrassing thing you've ever done at a bar?",
+            "What's the wildest thing you've ever done on a road trip?",
+            "What's the biggest secret you've ever kept from a friend?",
+            "What's the most spontaneous thing you've ever done with a coworker?",
+            "What's the craziest thing you've ever done at a sporting event?",
+            "What's the biggest risk you've ever taken in your career?",
+            "What's the most embarrassing thing you've ever done in front of a crowd?",
+            "What's the wildest thing you've ever done on a first date?",
+            "What's the biggest secret you've ever kept from a family member?",
+            "What's the most spontaneous thing you've ever done with a neighbor?",
+            "What's the craziest thing you've ever done at a music festival?",
+            "What's the biggest lie you've ever told to a friend?",
+            "What's the most embarrassing thing you've ever done at a restaurant?",
+            "What's the wildest thing you've ever done on a spontaneous trip?",
+            
+          ],
+          dare: [
+            "Pretend we’re strangers at a bar and you just spotted me. Try to pick me up.",
+            "Go down on me in a position we’ve never tried before",
+            "Roleplay that you’re a professor and I’m your student. Seduce me.",
+            "Describe what type of lingerie really turns you on while making eye contact with me. If you laugh, you have to buy some for me.",
+            "Take out your wallet and pretend to be a patron at a strip club while I dance for you. (Tips are more than encouraged.)",
+            "Go to the kitchen and make me the sexiest snack you can think of, Master Chef style. The catch? You only have three minutes, and you’re the plate.",
+            "I’ll pick a song and you have to give me a lap dance. Blindfolded.",
+            "You can’t say my name for the rest of the game, but instead, have to call me any nickname I choose. Every time you mess up, I get to spank you.",
+            "Act out your sexiest fantasy without using your words. Props, however, are highly encouraged.",
+            "Go skinny dipping with me. (If you don’t have a private pool, get creative! The bathtub, shower, or a water fight in the kitchen all count.)",
+            "Trade clothes with me for the rest of the game. Once you put mine on, blast your fave hype song and show off your new look like a runway model.",
+            "Try to literally (li li li) lick yourself from your head to your toes. You only get three “help” spots where I can jump in, so use wisely.",
+            "Show me the last porn video you watched.",
+            "Let me rub your cock/pussy",
+            "Kiss a part of my body you want to cum on.",
+            "Take off your pants and give me your best twerk. Now try it upside down on the wall.",
+            "Host a sexy, five-minute yoga class for me with lots of sensual stretching and downward dogging.",
+            "Call me from the other room. When it goes to voicemail, leave me an explicit message outlining exactly what you want to do to me.",
+            "Demonstrate your best oral sex move on the nearest appropriate object.",
+            "Put on Pony by Ginuwine, and vacuum seductively for the length of the song.",
+            "Turn out the lights and try to turn me on *only* using sounds. You have two minutes and if you fail, you owe me a sexual favor.",
+            "Give me a sensual foot massage. The hotter, the better.",
+            "Kiss your three favorite body parts of my body.",
+            "Put on a timer and act out as many sexual positions as you can with your clothes on.",
+            "Pick out three sex toys online you’d want to try with me. I get to pick my favorite one and you have to order it right now.",
+            "Take a selfie of your most outrageous “O” face. Now put thatas your lock screen, and keep it that way for the next 48 hours. If you change it before time’s up, you owe me a dinner.",
+            "Give me a detailed, charismatic cooking demonstration of “How to Make Cereal.” The catch: You gotta do it nude.",
+            "Go find your old Halloween costume and put it on for me. Then, let's decide what to role-play.",
+            "Place whipped cream on your favorite parts of my body. Now, lick it off.",
+            "Eat a strawberry in the most sensual way possible.",
+            "Engage in foreplay with me for five minutes with one rule: You're allowed to kiss me anywhere but my mouth.",
+            "Give me a massage anywhere on my body for 10 minutes",
+            `Do something to me right now that you've been fantasizing about.`,
+            "Find something sweet to swipe across your lips and give me a passionate kiss.",
+            "Drag me to the closet for an adult round of seven minutes in heaven. You must keep the making out above the belt.",
+            "Stimulate two parts of my body at once. Use your hands on one part and lips on another.",
+            "Using your mouth, make your way from my wrist to my ear. Take your time!",
+            "In your most sultry voice, tell me what you loved about the last time we had sex.",
+            "You have ten seconds to excite me just by kissing. Hint: You're not limited to my lips.",
+            "Make out with me like we used to before we started having sex.",
+            "touch my Dick/pussy",
+            "kiss me i will tell you to stop",
+            "Perform a stand-up comedy routine for me",
+            "Do a silly dance for me",
+            "Sing a love song for me",
+            "Tell me something you love about me",
+            "Give me a genuine compliment",
+            "Tell me a dirty joke",
+            "Show me your favorite meme",
+            "Whisper sweet nothings in my ear for a minute",
+            "Tell me a story from your childhood",
+            "Let me suck your dick/pussy",
+            "Do a magic trick for me",
+            "Let me put makeup on you",
+            "Let me style your hair",
+            "Let me paint your nails",
+            "Do a yoga pose for me",
+            "Show me a funny video on your phone",
+            "Give me a shoulder massage",
+            "Write me a love letter",
+            "Draw me a picture",
+            "Do a funny impression of me",
+            "Let me put a blindfold on you and feed you a piece of fruit",
+            "Do a silly voice for me",
+            "Let me give you a hickey",
+            "Let me make you cum",
+            "Play a song for me on your phone",
+            "Let me give you a piggyback ride",
+            "Let me give you a foot massage",
+            "Do a flirty striptease for me",
+            "Write me a sexy poem",
+            "Let me play with your hair",
+            "Let me give you a rose",
+            "Let me take a sexy picture of you",
+            "Let me tickle you",
+            "Let me give you a playful spanking",
+            "Let me play with your nipples",
+            "Let me ride on your back",
+            "Let me rub your belly",
+            "Let me give you a sensual head massage",
+            "Let me give you a seductive lap dance",
+            "Let me kiss you passionately",
+            "Let me rub your cock/pussy",
+            "Let me suck your dick/pussy",
+            "Let me make you cum",
+           
+          ],
+        },
+        custom: {
+          truth: [],
+          dare: [],
+        },
+      };
+
+      let currentLevel = "";
+      let players = [];
+      let currentPlayerIndex = 0;
+      let score = 0;
+      let timerInterval = null;
+      let playerAvatar = "";
+
+      // Start Game Function
+      function startGame(level) {
+        currentLevel = level;
+        document.getElementById("main").classList.add("hidden");
+        document.getElementById("avatar-selection").classList.remove("hidden");
+      }
+
+      // Select Avatar Function
+      function selectAvatar(avatar) {
+        playerAvatar = avatar.src;
+        document.getElementById("playerAvatar").src = playerAvatar;
+        document.getElementById("avatar-selection").classList.add("hidden");
+        document.getElementById("game").classList.remove("hidden");
+      }
+
+      // Add Custom Question Function
+      function addCustomQuestion(type, question) {
+        if (question.trim() !== "") {
+          questions.custom[type].push(question.trim());
+          alert(`Added to ${type}: ${question}`);
+          document.getElementById("customQuestion").value = "";
+        } else {
+          alert("Please enter a question.");
+        }
+      }
+
+      // Start Multiplayer Mode Function
+      function startMultiplayer(playerNames) {
+        players = playerNames.split(",").map((name) => name.trim());
+        currentPlayerIndex = 0;
+        updatePlayerTurn();
+      }
+
+      // Update Player Turn Function
+      function updatePlayerTurn() {
+        document.getElementById(
+          "playerTurn"
+        ).innerText = `${players[currentPlayerIndex]}'s turn!`;
+      }
+
+      function nextTurn() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        updatePlayerTurn();
+      }
+
+      // Get Random Truth or Dare Function
+      function getQuestion(type) {
+        const levelQuestions = questions[currentLevel][type];
+        const customQuestions = questions.custom[type];
+        const allQuestions = [...levelQuestions, ...customQuestions];
+        const question =
+          allQuestions[Math.floor(Math.random() * allQuestions.length)];
+        document.getElementById("question").innerText = question;
+        score++;
+        document.getElementById("score").innerText = `Score: ${score}`;
+        if (type === "dare") startTimer(30);
+        if (players.length) nextTurn();
+      }
+
+      // Start Timer Function
+      function startTimer(seconds) {
+        const timerElement = document.getElementById("timer");
+        timerElement.classList.remove("hidden");
+        let remaining = seconds;
+        timerElement.innerText = `Time left: ${remaining}s`;
+        timerInterval = setInterval(() => {
+          remaining--;
+          timerElement.innerText = `Time left: ${remaining}s`;
+          if (remaining <= 0) {
+            clearInterval(timerInterval);
+            timerElement.innerText = "Time's up!";
+          }
+        }, 1000);
+      }
+      // Go Back Function
+      function goBack() {
+        document.getElementById("game").classList.add("hidden");
+        document.getElementById("main").classList.remove("hidden");
+        players = [];
+        currentPlayerIndex = 0;
+        score = 0;
+        document.getElementById("score").innerText = `Score: ${score}`;
+        clearInterval(timerInterval);
+        document.getElementById("timer").classList.add("hidden");
+        document.getElementById("timer").innerText = "";
+      }
+    </script>
+  </body>
+</html>
